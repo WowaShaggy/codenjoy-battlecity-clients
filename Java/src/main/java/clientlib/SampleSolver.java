@@ -1,7 +1,10 @@
 package clientlib;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
+import static clientlib.Action.AFTER_TURN;
+import static clientlib.Action.BEFORE_TURN;
 import static clientlib.Elements.*;
 
 
@@ -131,9 +134,70 @@ public class SampleSolver extends Solver {
         return elementsCoordinates;
     }
 
-    @Override
-    public String move() {
-        return left();
-    }
 
+
+    @Override
+    public String move() {        
+                                                                    // Координаты нашего танка
+        List<Point> cor = getPlayerTankCoordinates();   
+        System.out.println("x=" +cor.get(0).getX() + " y=" +cor.get(0).getY());
+        
+        // Проверка наличие рядом 
+        if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()+1, OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT)){
+            System.out.println("Up is tank");
+            return up(AFTER_TURN);
+        }
+        if (isAnyOfAt(cor.get(0).getX()+1,cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT)){
+            System.out.println("right is tank");
+            return right(AFTER_TURN);
+        }
+        if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT)){
+            System.out.println("down is tank");
+            return down(AFTER_TURN);
+        }
+        if (isAnyOfAt(cor.get(0).getX()-1,cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT)){
+            System.out.println("left is tank");
+            return left(AFTER_TURN);
+        }                             
+
+
+                                                                // барьеры рядом
+       List<Integer> dir = new ArrayList<>();
+
+       dir.add(0);dir.add(1);dir.add(2);dir.add(3);
+
+           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()+1) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BATTLE_WALL)){
+              dir.set(0, null);
+           }
+           if(isBarrierAt(cor.get(0).getX()+1,cor.get(0).getY()) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BATTLE_WALL)){
+               dir.set(1, null);
+           }
+           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()-1) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BATTLE_WALL)){
+               dir.set(2, null);
+           }
+           if(isBarrierAt(cor.get(0).getX()-1,cor.get(0).getY() )|| isAt(cor.get(0).getX()-1,cor.get(0).getY(), BATTLE_WALL)){
+               dir.set(3, null);
+           }
+
+
+        int a;
+        do {
+            System.out.println("list " + dir.get(0)+ "  " + dir.get(1)+ "  " + dir.get(2)+ "  " + dir.get(3));
+            a = ThreadLocalRandom.current().nextInt(0, 4);
+            System.out.println("a = " + a);
+        }while(dir.get(a) == null);
+        System.out.println("final a position = " + dir.get(a));
+        switch (a){                                 
+            case 0:
+                return up(AFTER_TURN);
+            case 1:
+                return right(AFTER_TURN);
+            case 2:
+                return down(AFTER_TURN);
+            case 3:
+                return left(AFTER_TURN);
+            default: return down(BEFORE_TURN);
+        }
+    }
 }
+
