@@ -136,18 +136,18 @@ public class SampleSolver extends Solver {
 
 
     @Override
-    public String move() {        
-                                                                    // Координаты нашего танка
+    public String move() throws java.lang.NullPointerException {        
+                                                                                                                         // My tank's location
         List<Point> cor = getPlayerTankCoordinates();   
         System.out.println("x=" +cor.get(0).getX() + " y=" +cor.get(0).getY());
         
-        // Проверка наличие рядом 
+                                                                                                                         // The nearest enemy tank
         if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                  AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
             System.out.println("Up is tank");
             return up(AFTER_TURN);
         }
-        if (isAnyOfAt(cor.get(0).getX()+1,cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
+        if (isAnyOfAt(cor.get(0).getX()+1, cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                    AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
             System.out.println("right is tank");
             return right(AFTER_TURN);
@@ -161,45 +161,42 @@ public class SampleSolver extends Solver {
                                                                 AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
             System.out.println("left is tank");
             return left(AFTER_TURN);
-        }                             
-
-                                                                // барьеры рядом
-       List<Integer> dir = new ArrayList<>();
-
-       dir.add(0);dir.add(1);dir.add(2);dir.add(3);
+        }
+                                                                                                                        // Blocked directions
+       List<String> dir = new ArrayList<>();
+       dir.add("up");dir.add("right");dir.add("down");dir.add("left");
        
-            
            if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()-1) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BATTLE_WALL) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BULLET)){
               dir.set(0, null);
-              if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, CONSTRUCTION_DESTROYED, BANG)){
-                  System.out.println("way will be clear in a second");
-                  dir.set(0, 0);
-              }
+             // if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, CONSTRUCTION_DESTROYED, BANG)){
+             //     System.out.println("way will be clear in a second");
+             //     dir.set(0, "up");
+             // }
            }
            if(isBarrierAt(cor.get(0).getX()+1,cor.get(0).getY()) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BATTLE_WALL) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BULLET)){
                dir.set(1, null);
-               if (isAnyOfAt(cor.get(0).getX()+1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
-                   System.out.println("way will be clear in a second");
-                   dir.set(1, 1);
-               }
+              // if (isAnyOfAt(cor.get(0).getX()+1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
+              //     System.out.println("way will be clear in a second");
+              //     dir.set(1, "right");
+              // }
            }
            if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()+1) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BATTLE_WALL) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BULLET)){
                dir.set(2, null);
-               if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()+1, CONSTRUCTION_DESTROYED, BANG)){
-                   System.out.println("way will be clear in a second");
-                   dir.set(2, 2);
-               }
+              // if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()+1, CONSTRUCTION_DESTROYED, BANG)){
+              //     System.out.println("way will be clear in a second");
+              //     dir.set(2, "down");
+              // }
            }
            if(isBarrierAt(cor.get(0).getX()-1,cor.get(0).getY() )|| isAt(cor.get(0).getX()-1,cor.get(0).getY(), BATTLE_WALL) || isAt(cor.get(0).getX()-1,cor.get(0).getY(), BULLET)){
                dir.set(3, null);
-               if (isAnyOfAt(cor.get(0).getX()-1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
-                   System.out.println("way will be clear in a second");
-                   dir.set(3, 3);
-               }
+              // if (isAnyOfAt(cor.get(0).getX()-1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
+              //     System.out.println("way will be clear in a second");
+              //     dir.set(3, "left");
+              // }
            }
-
-        System.out.println("list " + dir.get(0)+ "  " + dir.get(1)+ "  " + dir.get(2)+ "  " + dir.get(3));
            
+        System.out.println("list: " + dir.get(0)+ "  " + dir.get(1)+ "  " + dir.get(2)+ "  " + dir.get(3));
+                                                                                                                        // Enemies are in the distance  
         for ( Point i: getOtherPlayersTanks()) {
             for (int ii = 1; ii < 3; ii++) {
                 if (i.getY() == cor.get(0).getY()) {
@@ -224,44 +221,53 @@ public class SampleSolver extends Solver {
                 }
             }
         }
-        
+                                                                                                                        // Enemies are far away
         for ( Point i: getOtherPlayersTanks()) {
-            if (i.getY() == cor.get(0).getY()) {
+            if (i.getY() == cor.get(0).getY() && Math.abs(i.getX() - cor.get(0).getX()) <= 12) {
                 if (i.getX() < cor.get(0).getX() && dir.get(3) != null) {
-                    System.out.println("enemy is left");
+                    System.out.println("enemy is left" + " x=" + i.getX() + " y=" + i.getY());
                     return left(AFTER_TURN);
                 }
                 if (i.getX() > cor.get(0).getX() && dir.get(1) != null) {
-                    System.out.println("enemy is right");
+                    System.out.println("enemy is right" + " x=" + i.getX() + " y=" + i.getY());
                     return right(AFTER_TURN);
                 }
             }
-            if (i.getX() == cor.get(0).getX()) {
-                if (i.getY() > cor.get(0).getY() && dir.get(0) != null) {
-                    System.out.println("enemy is up");
+            if (i.getX() == cor.get(0).getX() && Math.abs(i.getY() - cor.get(0).getY()) <= 5) {
+                if (i.getY() < cor.get(0).getY() && dir.get(0) != null) {
+                    System.out.println("enemy is up" + " x=" + i.getX() + " y=" + i.getY());
                     return up(AFTER_TURN);
                 }
-                if (i.getY() < cor.get(0).getY() && dir.get(2) != null) {
-                    System.out.println("enemy is down");
+                if (i.getY() > cor.get(0).getY() && dir.get(2) != null) {
+                    System.out.println("enemy is down" + " x=" + i.getX() + " y=" + i.getY());
                     return down(AFTER_TURN);
                 }
             }
         }
-
-        int a;
+                                                                                                                        // one way or another
+        int a; 
+        boolean ok;
         do {
-            a = ThreadLocalRandom.current().nextInt(0, 4);
+            ok = true;
+            a = ThreadLocalRandom.current().nextInt(0, dir.size());
             System.out.println("a = " + a);
-        }while(dir.get(a) == null);
-        System.out.println("final a position = " + dir.get(a));
-        switch (a){                                 
-            case 0:
+            if (dir.get(a) == null)
+            {
+                ok = false;
+                dir.remove(a);
+                System.out.println("size became " + dir.size());
+            }
+        }while(ok == false);
+        System.out.println("f.size is " + dir.size() +" and f.a = " + a);
+        
+        switch (dir.get(a)){                                 
+            case "up":
                 return up();
-            case 1:
+            case "right":
                 return right();
-            case 2:
+            case "down":
                 return down();
-            case 3:
+            case "left":
                 return left();
             default: return down(AFTER_TURN);
         }
