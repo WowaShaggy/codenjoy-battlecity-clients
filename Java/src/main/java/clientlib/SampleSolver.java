@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static clientlib.Action.AFTER_TURN;
+import static clientlib.Action.BEFORE_TURN;
 import static clientlib.Elements.*;
 
 
@@ -140,81 +141,94 @@ public class SampleSolver extends Solver {
                                                                                                                          // My tank's location
         List<Point> cor = getPlayerTankCoordinates();   
         System.out.println("x=" +cor.get(0).getX() + " y=" +cor.get(0).getY());
-        
+        List<String> dir = new ArrayList<>();
+        dir.add("up");dir.add("right");dir.add("down");dir.add("left");
                                                                                                                          // The nearest enemy tank
         if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                  AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
             System.out.println("Up is tank");
+            if(isAt(cor.get(0).getX(),cor.get(0).getY(), TANK_UP)){
+                dir.set(0, "UP");
+            } else {
             return up(AFTER_TURN);
+            }
         }
         if (isAnyOfAt(cor.get(0).getX()+1, cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                    AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
-            System.out.println("right is tank");
-            return right(AFTER_TURN);
+            System.out.println("Right is tank");
+            if(isAt(cor.get(0).getX(),cor.get(0).getY(), TANK_RIGHT)){
+                dir.set(1, "RIGHT");
+            }else{
+            return right(AFTER_TURN);}
         }
         if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()+1, OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                  AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
-            System.out.println("down is tank");
-            return down(AFTER_TURN);
+            System.out.println("Down is tank");
+            if(isAt(cor.get(0).getX(),cor.get(0).getY(), TANK_DOWN)){
+                dir.set(2, "DOWN");
+            }{
+            return down(AFTER_TURN);}
         }
         if (isAnyOfAt(cor.get(0).getX()-1,cor.get(0).getY(), OTHER_TANK_UP,OTHER_TANK_RIGHT,OTHER_TANK_DOWN,OTHER_TANK_LEFT,
                                                                 AI_TANK_UP, AI_TANK_RIGHT, AI_TANK_DOWN, AI_TANK_LEFT)){
-            System.out.println("left is tank");
+            System.out.println("Left is tank");
+            if(isAt(cor.get(0).getX(),cor.get(0).getY(), TANK_LEFT)){
+                dir.set(3, "LEFT");
+            }
             return left(AFTER_TURN);
         }
                                                                                                                         // Blocked directions
-       List<String> dir = new ArrayList<>();
-       dir.add("up");dir.add("right");dir.add("down");dir.add("left");
        
-           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()-1) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BATTLE_WALL) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BULLET)){
+           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()-1) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, BATTLE_WALL)){
               dir.set(0, null);
-             // if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()-1, CONSTRUCTION_DESTROYED, BANG)){
-             //     System.out.println("way will be clear in a second");
-             //     dir.set(0, "up");
-             // }
            }
-           if(isBarrierAt(cor.get(0).getX()+1,cor.get(0).getY()) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BATTLE_WALL) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BULLET)){
+           if(isBarrierAt(cor.get(0).getX()+1,cor.get(0).getY()) || isAt(cor.get(0).getX()+1,cor.get(0).getY(), BATTLE_WALL)){
                dir.set(1, null);
-              // if (isAnyOfAt(cor.get(0).getX()+1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
-              //     System.out.println("way will be clear in a second");
-              //     dir.set(1, "right");
-              // }
            }
-           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()+1) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BATTLE_WALL) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BULLET)){
+           if(isBarrierAt(cor.get(0).getX(),cor.get(0).getY()+1) || isAt(cor.get(0).getX(),cor.get(0).getY()+1, BATTLE_WALL)){
                dir.set(2, null);
-              // if (isAnyOfAt(cor.get(0).getX(),cor.get(0).getY()+1, CONSTRUCTION_DESTROYED, BANG)){
-              //     System.out.println("way will be clear in a second");
-              //     dir.set(2, "down");
-              // }
            }
-           if(isBarrierAt(cor.get(0).getX()-1,cor.get(0).getY() )|| isAt(cor.get(0).getX()-1,cor.get(0).getY(), BATTLE_WALL) || isAt(cor.get(0).getX()-1,cor.get(0).getY(), BULLET)){
+           if(isBarrierAt(cor.get(0).getX()-1,cor.get(0).getY() )|| isAt(cor.get(0).getX()-1,cor.get(0).getY(), BATTLE_WALL)){
                dir.set(3, null);
-              // if (isAnyOfAt(cor.get(0).getX()-1,cor.get(0).getY(), CONSTRUCTION_DESTROYED, BANG)){
-              //     System.out.println("way will be clear in a second");
-              //     dir.set(3, "left");
-              // }
            }
+
+        if(isAt(cor.get(0).getX(),cor.get(0).getY()-1, BULLET) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_DOWN)){                                                     //Bullets
+            dir.set(0, null);
+            dir.set(2, null);
+        }
+        if(isAt(cor.get(0).getX()+1,cor.get(0).getY(), BULLET) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_RIGHT)){
+            dir.set(1, null);
+            dir.set(3, null);
+        }
+        if(isAt(cor.get(0).getX(),cor.get(0).getY()+1, BULLET) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_UP)){
+            dir.set(2, null);
+            dir.set(0, null);
+        }
+        if(isAt(cor.get(0).getX()-1,cor.get(0).getY(), BULLET) || isAt(cor.get(0).getX(),cor.get(0).getY()-1, OTHER_TANK_LEFT)){
+            dir.set(3, null);
+            dir.set(1, null);
+        }
            
         System.out.println("list: " + dir.get(0)+ "  " + dir.get(1)+ "  " + dir.get(2)+ "  " + dir.get(3));
                                                                                                                         // Enemies are in the distance  
         for ( Point i: getOtherPlayersTanks()) {
             for (int ii = 1; ii < 3; ii++) {
                 if (i.getY() == cor.get(0).getY()) {
-                    if (i.getX() + ii == cor.get(0).getX() && dir.get(3) != null) {
+                    if (i.getX() + ii == cor.get(0).getX() && dir.get(3) != null && dir.get(3) != "LEFT") {
                         System.out.println("enemy is left in " + ii);
                         return left(AFTER_TURN);
                     }
-                    if (i.getX() - ii == cor.get(0).getX() && dir.get(1) != null) {
+                    if (i.getX() - ii == cor.get(0).getX() && dir.get(1) != null && dir.get(1) != "RIGHT") {
                         System.out.println("enemy is right in " + ii);
                         return right(AFTER_TURN);
                     }
                 }
                 if (i.getX() == cor.get(0).getX()) {
-                    if (i.getY() + ii == cor.get(0).getY() && dir.get(0) != null) {
+                    if (i.getY() + ii == cor.get(0).getY() && dir.get(0) != null && dir.get(0) != "UP") {
                         System.out.println("enemy is up in " + ii);
                         return up(AFTER_TURN);
                     }
-                    if (i.getY() - ii == cor.get(0).getY() && dir.get(2) != null) {
+                    if (i.getY() - ii == cor.get(0).getY() && dir.get(2) != null && dir.get(2) != "DOWN") {
                         System.out.println("enemy is down in " + ii);
                         return down(AFTER_TURN);
                     }
@@ -223,7 +237,7 @@ public class SampleSolver extends Solver {
         }
                                                                                                                         // Enemies are far away
         for ( Point i: getOtherPlayersTanks()) {
-            if (i.getY() == cor.get(0).getY() && Math.abs(i.getX() - cor.get(0).getX()) <= 12) {
+            if (i.getY() == cor.get(0).getY() && Math.abs(i.getX() - cor.get(0).getX()) <= 50 && Math.abs(i.getX() - cor.get(0).getX()) > 1 ) {
                 if (i.getX() < cor.get(0).getX() && dir.get(3) != null) {
                     System.out.println("enemy is left" + " x=" + i.getX() + " y=" + i.getY());
                     return left(AFTER_TURN);
@@ -233,7 +247,7 @@ public class SampleSolver extends Solver {
                     return right(AFTER_TURN);
                 }
             }
-            if (i.getX() == cor.get(0).getX() && Math.abs(i.getY() - cor.get(0).getY()) <= 5) {
+            if (i.getX() == cor.get(0).getX() && Math.abs(i.getY() - cor.get(0).getY()) <= 50 && Math.abs(i.getX() - cor.get(0).getX()) > 1) {
                 if (i.getY() < cor.get(0).getY() && dir.get(0) != null) {
                     System.out.println("enemy is up" + " x=" + i.getX() + " y=" + i.getY());
                     return up(AFTER_TURN);
@@ -244,7 +258,8 @@ public class SampleSolver extends Solver {
                 }
             }
         }
-                                                                                                                        // one way or another
+
+                                                                                                                         // one way or another
         int a; 
         boolean ok;
         do {
@@ -254,8 +269,14 @@ public class SampleSolver extends Solver {
             if (dir.get(a) == null)
             {
                 ok = false;
-                dir.remove(a);
-                System.out.println("size became " + dir.size());
+                if(dir.size()!=1){
+                    dir.remove(a);
+                    System.out.println("Size became " + dir.size());
+                }else{
+                    System.out.println("ALERT");
+                    ok = true;
+                    dir.set(a, "up");
+                }
             }
         }while(ok == false);
         System.out.println("f.size is " + dir.size() +" and f.a = " + a);
@@ -268,11 +289,53 @@ public class SampleSolver extends Solver {
             case "down":
                 return down();
             case "left":
-                return left();
+                return left(); 
+            case "UP":
+            case "RIGHT":
+            case "DOWN":
+            case "LEFT":
+                return ururu(dir,a);
             default: return down(AFTER_TURN);
         }
         
+    }
 
+    public String ururu(List<String> dir, int A) {
+
+        String S = dir.get(A);
+        dir.set(A, null);
+        int a;
+        boolean ok;
+        do {
+            ok = true;
+            a = ThreadLocalRandom.current().nextInt(0, dir.size());
+            System.out.println("A = " + a);
+            if (dir.get(a) == null) {
+                ok = false;
+                if(dir.size()!=1){
+                dir.remove(a);
+                System.out.println("Size became " + dir.size());
+                }else{
+                    System.out.println("ALERT");
+                    ok = true;
+                    dir.set(a, "up");
+                }                
+            }
+        } while (ok == false);
+        System.out.println("F.size is " + dir.size() +" and F.A = " + a);
+
+        switch (dir.get(a)){
+            case "up":
+                return up(BEFORE_TURN);
+            case "right":
+                return right(BEFORE_TURN);
+            case "down":
+                return down(BEFORE_TURN);
+            case "left":
+                return left(BEFORE_TURN);
+            default: return down(AFTER_TURN);
+        }
+    
     }
     
 }
